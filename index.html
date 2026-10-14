@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Персонализированный путеводитель по Санкт-Петербургу</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 400;
+    color: #2a2a35;
+    line-height: 1.6;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    background: url('https://i.pinimg.com/736x/c6/ee/13/c6ee13dca4f409862afb019d04807d85.jpg') center/cover fixed no-repeat;
+    background-color: #faf8f5;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Comfortaa', 'Nunito', cursive;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+    color: #fff;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(15,15,35,0.5);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 120px;
+    background: linear-gradient(transparent, rgba(250,248,245,0.88));
+    pointer-events: none;
+  }
+  .hero-content { position: relative; z-index: 2; max-width: 780px; }
+  .hero h1 {
+    font-size: clamp(26px, 4.2vw, 48px);
+    line-height: 1.25;
+    font-weight: 700;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+  }
+  .hero .sub {
+    margin-top: 18px;
+    font-size: clamp(13px, 1.3vw, 16px);
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    opacity: 0.95;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.65);
+  }
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    color: #fff;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    opacity: 0.9;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  .solid {
+    background: rgba(250,248,245,0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 80px 20px;
+  }
+  .container { max-width: 880px; margin: 0 auto; }
+
+  .cta-block { text-align: center; }
+  .cta-block h2 {
+    font-size: clamp(22px, 3vw, 34px);
+    margin-bottom: 14px;
+    color: #1a1a2e;
+    line-height: 1.3;
+  }
+  .cta-block p {
+    font-size: 14px;
+    font-weight: 400;
+    color: #777;
+    margin-bottom: 32px;
+    letter-spacing: 0.3px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 14px 36px;
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Comfortaa', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(.2,.8,.2,1);
+    box-shadow: 0 8px 24px rgba(26,26,46,0.18);
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(26,26,46,0.28);
+    background: #2a2a45;
+  }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+  .btn.secondary {
+    background: transparent;
+    color: #1a1a2e;
+    border: 1.5px solid #1a1a2e;
+    box-shadow: none;
+  }
+  .btn.secondary:hover { background: #1a1a2e; color: #fff; }
+
+  .quiz-wrap {
+    display: none;
+    max-width: 640px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 22px;
+    padding: 40px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.12);
+  }
+  .quiz-wrap.active { display: block; animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+
+  .progress { height: 4px; background: #f0ece6; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+  .progress-bar { height: 100%; width: 0%; background: #1a1a2e; transition: width 0.5s cubic-bezier(.2,.8,.2,1); }
+  .progress-text {
+    font-size: 11px;
+    color: #aaa;
+    margin-bottom: 30px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .quiz-wrap h3 {
+    font-size: clamp(18px, 2.2vw, 24px);
+    margin-bottom: 8px;
+    color: #1a1a2e;
+    line-height: 1.35;
+  }
+  .quiz-wrap .subtitle {
+    color: #999;
+    margin-bottom: 26px;
+    font-weight: 400;
+    font-size: 13.5px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .option {
+    padding: 14px 18px;
+    background: #faf8f5;
+    border: 1.5px solid #f0ece6;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: left;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #2a2a35;
+    width: 100%;
+    font-weight: 500;
+  }
+  .option:hover {
+    background: #fff;
+    border-color: #1a1a2e;
+    transform: translateX(4px);
+  }
+  .option.selected {
+    background: #1a1a2e;
+    border-color: #1a1a2e;
+    color: #fff;
+  }
+  .option.selected .hint { color: rgba(255,255,255,0.65); }
+  .option .emoji { font-size: 20px; }
+  .option .label { font-weight: 600; display: block; font-size: 14px; }
+  .option .hint { font-size: 12px; color: #999; font-weight: 400; display: block; margin-top: 2px; }
+
+  .buttons { display: flex; gap: 10px; justify-content: space-between; align-items: center; }
+  .btn-back {
+    padding: 12px 18px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    color: #999;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: color 0.2s;
+  }
+  .btn-back:hover { color: #1a1a2e; }
+  .btn-next {
+    flex: 1;
+    padding: 13px 24px;
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Comfortaa', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(.2,.8,.2,1);
+  }
+  .btn-next:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(26,26,46,0.25);
+  }
+  .btn-next:disabled { opacity: 0.25; cursor: not-allowed; }
+
+  .result-wrap { display: none; max-width: 780px; margin: 0 auto; }
+  .result-wrap.active { display: block; animation: fadeIn 0.6s ease; }
+  .result-card {
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 22px;
+    padding: 40px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.12);
+  }
+  .result-card h2 {
+    font-size: clamp(20px, 2.8vw, 28px);
+    margin-bottom: 12px;
+    color: #1a1a2e;
+    line-height: 1.3;
+  }
+  .result-card .desc {
+    color: #777;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.7;
+  }
+  .result-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+  .tag {
+    padding: 6px 14px;
+    background: #faf8f5;
+    border: 1px solid #ece7df;
+    border-radius: 50px;
+    font-size: 11px;
+    color: #777;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .day {
+    margin: 20px 0;
+    padding: 22px;
+    background: #faf8f5;
+    border-radius: 14px;
+  }
+  .day h4 {
+    font-family: 'Comfortaa', sans-serif;
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: #1a1a2e;
+    font-weight: 700;
+  }
+  .day .day-meta {
+    font-size: 12.5px;
+    color: #777;
+    margin-bottom: 16px;
+    font-weight: 500;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+  .day .day-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .day ol {
+    list-style: none;
+    counter-reset: step;
+  }
+  .day ol li {
+    padding: 10px 0 10px 34px;
+    border-bottom: 1px solid #ece7df;
+    font-size: 13.5px;
+    color: #2a2a35;
+    font-weight: 500;
+    position: relative;
+    counter-increment: step;
+  }
+  .day ol li:last-child { border-bottom: none; }
+  .day ol li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 11px;
+    width: 22px;
+    height: 22px;
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Comfortaa', sans-serif;
+  }
+  .day ol li small {
+    display: block;
+    color: #999;
+    font-size: 11.5px;
+    font-weight: 400;
+    margin-top: 3px;
+  }
+
+  .day ol li.place {
+    cursor: help;
+    transition: background 0.2s ease;
+    border-radius: 8px;
+  }
+  .day ol li.place:hover {
+    background: #fff5e6;
+  }
+  .day ol li.place .place-name {
+    border-bottom: 1px dotted #999;
+  }
+  .place-tooltip {
+    position: fixed;
+    z-index: 9999;
+    max-width: 320px;
+    background: #1a1a2e;
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    font-weight: 400;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    font-family: 'Nunito', sans-serif;
+    letter-spacing: 0.1px;
+  }
+  .place-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .place-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 12px;
+    height: 12px;
+    background: #1a1a2e;
+  }
+  @media (max-width: 600px) {
+    .place-tooltip { max-width: 260px; font-size: 12px; padding: 12px 14px; }
+  }
+
+  .map-block {
+    margin: 28px 0;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .map-block iframe {
+    display: block;
+    width: 100%;
+    height: 400px;
+    border: none;
+  }
+
+  .result-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; justify-content: center; }
+  .result-actions .btn { padding: 12px 28px; font-size: 12px; }
+
+  .preset-section {
+    padding: 80px 20px;
+    background: rgba(250,248,245,0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .preset-section h2 {
+    font-size: clamp(22px, 3vw, 32px);
+    text-align: center;
+    margin-bottom: 12px;
+    color: #1a1a2e;
+  }
+  .preset-section .lead {
+    text-align: center;
+    color: #888;
+    margin-bottom: 44px;
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .preset-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 940px;
+    margin: 0 auto;
+  }
+  @media (max-width: 700px) { .preset-grid { grid-template-columns: 1fr; } }
+  .preset {
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .preset:hover { transform: translateY(-4px); box-shadow: 0 18px 46px rgba(0,0,0,0.12); }
+  .preset h3 {
+    font-family: 'Comfortaa', sans-serif;
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #1a1a2e;
+    font-weight: 700;
+  }
+  .preset .meta {
+    font-size: 11px;
+    color: #999;
+    font-weight: 600;
+    margin-bottom: 18px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+  .preset ul { list-style: none; }
+  .preset li {
+    padding: 9px 0;
+    border-bottom: 1px solid #f0ece6;
+    font-size: 13.5px;
+    display: flex;
+    gap: 12px;
+    font-weight: 500;
+    color: #2a2a35;
+  }
+  .preset li:last-child { border-bottom: none; }
+
+  footer {
+    background: rgba(26,26,46,0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #999;
+    padding: 60px 20px 32px;
+  }
+  .footer-inner { max-width: 940px; margin: 0 auto; }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 700px) { .footer-grid { grid-template-columns: 1fr; } }
+  footer h5 {
+    color: #fff;
+    font-size: 11px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    font-weight: 700;
+    font-family: 'Comfortaa', sans-serif;
+  }
+  footer p, footer a {
+    color: #999;
+    font-size: 13px;
+    text-decoration: none;
+    line-height: 1.85;
+    font-weight: 400;
+  }
+  footer a { transition: color 0.2s; }
+  footer a:hover { color: #e8a33d; }
+  .footer-bottom {
+    border-top: 1px solid #2a2a45;
+    padding-top: 22px;
+    text-align: center;
+    font-size: 11px;
+    color: #666;
+    letter-spacing: 0.8px;
+    font-weight: 400;
+  }
+
+  @media (max-width: 600px) {
+    .quiz-wrap, .result-card { padding: 24px; }
+    .solid, .preset-section { padding: 50px 18px; }
+    footer { padding: 50px 18px 28px; }
+    body { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>Персонализированный путеводитель по Санкт-Петербургу</h1>
+    <p class="sub">Собери свой маршрут за 7 вопросов — и открой город по-своему</p>
+  </div>
+  <div class="scroll-hint">Листайте вниз ↓</div>
+</section>
+
+<section class="solid" id="quiz-section">
+  <div class="container">
+    <div class="cta-block" id="ctaBlock">
+      <h2>Пройдите небольшой опрос, чтобы получить лично ваш маршрут</h2>
+      <p>7 вопросов · 2 минуты · без регистрации</p>
+      <button class="btn" id="startBtn" type="button">Пройти опрос</button>
+    </div>
+
+    <div class="quiz-wrap" id="quiz">
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="progress-text" id="progressText">Вопрос 1 из 7</div>
+      <h3 id="questionTitle"></h3>
+      <p class="subtitle" id="questionSubtitle"></p>
+      <div class="options" id="options"></div>
+      <div class="buttons">
+        <button class="btn-back" id="backBtn" type="button">← Назад</button>
+        <button class="btn-next" id="nextBtn" type="button" disabled>Далее</button>
+      </div>
+    </div>
+
+    <div class="result-wrap" id="result"></div>
+  </div>
+</section>
+
+<section class="preset-section">
+  <h2>Или выберите готовый маршрут</h2>
+  <p class="lead">Два самых популярных варианта на полдня — если не хотите проходить опрос</p>
+  <div class="preset-grid">
+
+    <div class="preset">
+      <div class="meta">Классика · 4–5 часов</div>
+      <h3>Сердце Петербурга</h3>
+      <ul>
+        <li>Эрмитаж (2,5 ч)</li>
+        <li>Дворцовая площадь и Александровская колонна (15 мин)</li>
+        <li>Здание Главного штаба — арка (10 мин)</li>
+        <li>Исаакиевский собор + колоннада (1,5 ч)</li>
+        <li>Медный всадник (15 мин)</li>
+        <li>Набережная и Ростральные колонны (30 мин)</li>
+      </ul>
+    </div>
+
+    <div class="preset">
+      <div class="meta">Атмосфера · 5–6 часов</div>
+      <h3>Дворы, крыши и каналы</h3>
+      <ul>
+        <li>Семимостье (15 мин)</li>
+        <li>Двор духов (15 мин)</li>
+        <li>Двор-восьмиугольник (15 мин)</li>
+        <li>Дворик Сен-Жермен (20 мин)</li>
+        <li>Мозаичный дворик Лубенко (15 мин)</li>
+        <li>Прогулка по крышам (2 ч, по записи)</li>
+        <li>Развод мостов у Дворцового моста (1 ч)</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <h5>Об авторе</h5>
+        <p>Персональный путеводитель по Санкт-Петербургу создан для тех, кто хочет увидеть город по-своему —
+          без шаблонных экскурсий и лишней суеты.</p>
+      </div>
+      <div>
+        <h5>О проекте</h5>
+        <p>
+          Дата создания: октябрь 2026<br>
+          Автор: Вера<br>
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 Персонализированный путеводитель по Санкт-Петербургу
+    </div>
+  </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* =========================================================
+     БАЗА ТОЧЕК
+     fullDay: true — поездка занимает целый день
+     ========================================================= */
+  var places = [
+    { name: "Эрмитаж", tags: ["музеи", "классика", "с_семьей"], cluster: "Центр", minutes: 180, priority: 1, note: "Билеты онлайн", info: "Один из крупнейших художественных музеев мира, основанный Екатериной II в 1764 году. Расположен в Зимнем дворце — бывшей резиденции российских императоров." },
+    { name: "Казанский собор", tags: ["музеи", "классика", "с_семьей"], cluster: "Центр", minutes: 30, priority: 2, note: "", info: "Кафедральный собор Санкт-Петербурга, построенный в 1801–1811 годах по проекту архитектора Андрея Воронихина. Павел I пожелал, чтобы храм напоминал собор Святого Петра в Риме." },
+    { name: "Исаакиевский собор", tags: ["музеи", "классика", "с_семьей"], cluster: "Центр", minutes: 90, priority: 1, note: "Колоннада — виды", info: "Крупнейший православный храм Санкт-Петербурга, строившийся 40 лет (1818–1858) по проекту Огюста Монферрана. С колоннады собора высотой 43 метра открывается панорама центра города." },
+    { name: "Юсуповский дворец", tags: ["музеи", "классика", "с_семьей"], cluster: "Центр", minutes: 120, priority: 2, note: "", info: "Роскошная городская усадьба князей Юсуповых на набережной реки Мойки. С 1830 по 1919 год дворцом владели пять поколений знатного рода Юсуповых." },
+    { name: "Русский музей", tags: ["музеи", "классика", "с_семьей"], cluster: "Центр", minutes: 90, priority: 2, note: "", info: "Крупнейшее в мире собрание русского искусства, основанное в 1895 году по указу Николая II. Расположен в Михайловском дворце, построенном Карлом Росси." },
+    { name: "Дом Зингера", tags: ["прогулочный", "классика"], cluster: "Центр", minutes: 15, priority: 3, note: "Снаружи", info: "Знаменитый дом компании «Зингер» на Невском проспекте, построенный в 1902–1904 годах по проекту Павла Сюзора. На первых двух этажах крупнейший книжний магазин. Так же тут распологается штаб-квартира VK." },
+    { name: "Музей Фаберже", tags: ["музеи", "классика"], cluster: "Центр", minutes: 90, priority: 2, note: "", info: "Единственный в России музей знаменитой ювелирной фирмы Карла Фаберже, открытый в 2013 году в Шуваловском дворце. Основу собрания составляет крупнейшая коллекция шедевров фирмы, включая девять императорских пасхальных яиц." },
+    { name: "Мариинский театр", tags: ["музеи", "классика"], cluster: "Центр", minutes: 150, priority: 3, note: "Вечером", info: "Легендарный оперный и балетный театр, ведущий историю с 1783 года. Здесь блистали Фёдор Шаляпин, Анна Павлова, Вацлав Нижинский, Галина Уланова, Рудольф Нуреев и Михаил Барышников." },
+    { name: "Музей Генерального штаба", tags: ["музеи", "классика", "с_семьей"], cluster: "Центр", minutes: 90, priority: 3, note: "", info: "Часть Государственного Эрмитажа, расположенная в здании Главного штаба на Дворцовой площади. Экспозиция посвящена искусству XIX–XX веков, включая русский авангард." },
+    { name: "Спас на Крови", tags: ["музеи", "классика", "с_семьей"], cluster: "Центр", minutes: 60, priority: 1, note: "", info: "Храм Воскресения Христова, построенный в 1883–1907 годах на месте смертельного ранения императора Александра II. Архитектор Альфред Парланд создал девятиглавый храм в формах московского зодчества XVI–XVII веков." },
+    { name: "Михайловский замок", tags: ["музеи", "классика", "с_семьей"], cluster: "Центр", minutes: 60, priority: 2, note: "", info: "Бывшая резиденция императора Павла I, построенная в 1797–1801 годах в стиле романтического классицизма. Единственное в России дворцовое сооружение типа «замок на воде»." },
+    { name: "Академия Штиглица", tags: ["музеи", "необычный"], cluster: "Центр", minutes: 60, priority: 3, note: "", info: "Старейшее художественное училище России, основанное бароном Александром Штиглицем в 1876 году. Внутри сохранились уникальные интерьеры и музей декоративно-прикладного искусства." },
+    { name: "Магазин Ложкина", tags: ["необычный", "тусовочный"], cluster: "Центр", minutes: 30, priority: 3, note: "", info: "Галерея знаменитого Васи Ложкина, где собрано большое количество его картин, а также различные сувениры." },
+    { name: "Улица Рубинштейна", tags: ["тусовочный", "прогулочный"], cluster: "Центр", minutes: 20, priority: 2, note: "", info: "Главная барная и ресторанная улица Санкт-Петербурга. Здесь сосредоточены десятки кафе, баров и гастробистро на любой вкус." },
+    { name: "Дворик Ахматовой", tags: ["прогулочный", "необычный"], cluster: "Центр", minutes: 15, priority: 3, note: "", info: "Мемориальный двор в доме на Фонтанке, где жила Анна Ахматова. Здесь установлен памятник поэтессе и сохранились надписи её эпохи." },
+    { name: "Магазин Елисеевых", tags: ["музеи", "прогулочный"], cluster: "Центр", minutes: 30, priority: 3, note: "", info: "Исторический гастроном на Невском проспекте с интерьерами в стиле модерн. Открыт в 1903 году и до сих пор работает как магазин." },
+    { name: "Летний сад", tags: ["прогулочный", "с_семьей"], cluster: "Центр", minutes: 30, priority: 2, note: "", info: "Старейший парк Санкт-Петербурга, заложенный Петром I в 1704 году. Украшен мраморными скульптурами и знаменитой решёткой Фельтена, является частью Русского музея." },
+    { name: "Медный всадник", tags: ["прогулочный", "классика", "с_семьей"], cluster: "Центр", minutes: 15, priority: 1, note: "Осмотр", info: "Памятник Петру I работы Этьена Фальконе, открытый в 1782 году на Сенатской площади. Постамент из «Гром-камня» весил около 1600 тонн." },
+    { name: "Марсово поле", tags: ["прогулочный", "с_семьей"], cluster: "Центр", minutes: 20, priority: 3, note: "", info: "Мемориальный парк в центре города, бывшее место военных парадов. Здесь горит Вечный огонь в память о жертвах революций." },
+    { name: "Александровская колонна", tags: ["прогулочный", "классика", "с_семьей"], cluster: "Центр", minutes: 15, priority: 1, note: "Осмотр", info: "Монумент в честь победы Александра I над Наполеоном, установленный в 1834 году по проекту Огюста Монферрана. Колонна держится только под собственным весом — без креплений, её высота 47,5 метра." },
+    { name: "Здание Главного штаба", tags: ["музеи", "классика", "прогулочный"], cluster: "Центр", minutes: 15, priority: 2, note: "Арка", info: "Здание Карла Росси на Дворцовой площади с триумфальной аркой в честь победы 1812 года. Сейчас здесь выставки Эрмитажа, включая коллекции импрессионистов." },
+    { name: "Мозаичный дворик Лубенко", tags: ["прогулочный", "необычный"], cluster: "Центр", minutes: 15, priority: 3, note: "", info: "Уникальный двор на улице Чайковского, полностью украшенный мозаикой. Создан художником Владимиром Лубенко вместе с детьми." },
+    { name: "Таврический сад", tags: ["прогулочный", "с_семьей"], cluster: "Центр", minutes: 90, priority: 3, note: "", info: "Пейзажный парк вокруг Таврического дворца, подаренного Екатериной II князю Потёмкину. Площадь сада — около 21 гектара." },
+    { name: "Арт-кафе Бродячая собака", tags: ["тусовочный", "необычный"], cluster: "Центр", minutes: 90, priority: 3, note: "Вечером", info: "Легендарное арт-кафе Серебряного века, где выступали Ахматова, Маяковский, Мандельштам. Воссоздано в 2000-х как атмосферное место." },
+    { name: "Дворик Сен-Жермен", tags: ["тусовочный", "необычный", "прогулочный"], cluster: "Центр", minutes: 20, priority: 2, note: "", info: "Уютный петербургский дворик с атмосферой старой Европы. Здесь часто бывают фотографы и художники." },
+    { name: "Кинотеатр Аврора", tags: ["музеи", "необычный"], cluster: "Центр", minutes: 120, priority: 3, note: "", info: "Старейший действующий кинотеатр Санкт-Петербурга, открытый в 1913 году. Сохранил исторические интерьеры и является памятником архитектуры." },
+    { name: "Развод мостов у Дворцового моста", tags: ["ночь", "прогулочный", "необычный"], cluster: "Ночь", minutes: 60, priority: 1, note: "23:30–00:30", info: "Главное ночное шоу Петербурга в период навигации. Дворцовый мост разводят около 01:10." },
+
+    { name: "Кронштадт + форты", tags: ["музеи", "с_семьей", "прогулочный", "загород"], cluster: "Загород", minutes: 450, priority: 3, fullDay: true, note: "Автобус 1,5 ч", info: "Город-порт на острове с богатой военной историей. Главные точки — Морской собор, форты и музей «Мояка»." },
+    { name: "Петергоф", tags: ["музеи", "с_семьей", "прогулочный", "загород"], cluster: "Загород", minutes: 450, priority: 2, fullDay: true, note: "Электричка 40 мин / по воде", info: "Загородная резиденция Петра I, основанная в 1710-х годах на берегу Финского залива. Всемирную известность получили фонтаны Петергофа, включая Большой каскад с фигурой Самсона." },
+    { name: "Крепость Орешек", tags: ["музеи", "с_семьей", "загород"], cluster: "Загород", minutes: 300, priority: 3, fullDay: true, note: "Катер", info: "Древнерусская крепость XIV века в истоке Невы на Ореховом острове. Служила политической тюрьмой — здесь были заключены декабристы, народовольцы и члены семьи Ульяновых." },
+    { name: "Флагшток", tags: ["тусовочный", "прогулочный"], cluster: "Приморская", minutes: 200, priority: 2, note: "", info: "В зимний сезон тут находится каток - самый крупный каток в мире с искусственным покрытием. Часто проходят дискотеки на льду и ледовые шоу." },
+
+    { name: "Кунсткамера", tags: ["музеи", "с_семьей", "необычный"], cluster: "Василеостровская", minutes: 120, priority: 2, note: "", info: "Первый музей России, основанный Петром I в 1714 году. Название переводится с немецкого как «кабинет редкостей»." },
+    { name: "Ростральные колонны", tags: ["прогулочный", "с_семьей"], cluster: "Василеостровская", minutes: 20, priority: 2, note: "", info: "Парные колонны-маяки на стрелке Васильевского острова, построенные в 1810 году по проекту Тома де Томона. В праздники на них зажигают огонь." },
+    { name: "Двор духов", tags: ["прогулочный", "необычный"], cluster: "Василеостровская", minutes: 15, priority: 3, note: "", info: "Один из самых атмосферных дворов Петербурга на Васильевском острове. Знаменит граффити и андеграундной культурой." },
+
+    { name: "Музей Ленфильма", tags: ["музеи", "необычный"], cluster: "Петроградская", minutes: 60, priority: 3, note: "", info: "Музей старейшей киностудии России, основанной в 1923 году. Здесь снимались «Чапаев», «Человек-амфибия» и сотни других фильмов." },
+    { name: "Инсталляция Пропавшие в кинохронике", tags: ["музеи", "необычный"], cluster: "Петроградская", minutes: 60, priority: 3, note: "", info: "Иммерсивная выставка, посвящённая судьбам людей, попавших в кадры военной кинохроники. Трогательный формат, сочетающий документальные материалы и художественные приёмы." },
+    { name: "Памятник Виктору Цою", tags: ["тусовочный", "необычный"], cluster: "Петроградская", minutes: 30, priority: 3, note: "", info: "Памятник легендарному рок-музыканту. Место паломничества поклонников группы «Кино» со всей страны." },
+    { name: "Крейсер Аврора", tags: ["музеи", "с_семьей"], cluster: "Петроградская", minutes: 60, priority: 2, note: "", info: "Легендарный крейсер Балтийского флота, символ Октябрьской революции. Сейчас — филиал Центрального военно-морского музея." },
+    { name: "Аллея с шагом Петра I", tags: ["прогулочный", "необычный"], cluster: "Петроградская", minutes: 15, priority: 3, note: "", info: "Небольшая аллея с отпечатками шагов Петра I в натуральную величину. Забавная и малоизвестная точка рядом с Петропавловской крепостью." },
+    { name: "Петропавловская крепость", tags: ["музеи", "классика", "с_семьей"], cluster: "Петроградская", minutes: 150, priority: 1, note: "", info: "Старейший архитектурный памятник Санкт-Петербурга, заложенный Петром I 16 (27) мая 1703 года на Заячьем острове. Дата основания крепости считается днём основания города." },
+    { name: "Скрипичный сквер", tags: ["прогулочный", "необычный"], cluster: "Петроградская", minutes: 15, priority: 3, note: "", info: "Уютный сквер на Петроградской стороне с музыкальными скульптурами. Назван в честь композитора Андрея Петрова." },
+    { name: "Памятник врачам COVID-19", tags: ["прогулочный", "необычный"], cluster: "Петроградская", minutes: 15, priority: 3, note: "", info: "Современный памятник медикам, погибшим во время пандемии. Установлен в 2021 году рядом с больницей Боткина." },
+    { name: "Ботанический сад", tags: ["прогулочный", "необычный"], cluster: "Петроградская", minutes: 30, priority: 3, note: "", info: "Один из старейших ботанических садов России, основанный в 1714 году. Под открытым небом и в оранжереях — тысячи видов растений." },
+    { name: "Двор-восьмиугольник", tags: ["прогулочный", "необычный"], cluster: "Петроградская", minutes: 15, priority: 3, note: "", info: "Необычный двор-колодец восьмиугольной формы. Популярное место у фотографов, ищущих нетривиальные ракурсы." },
+
+    { name: "Дом архитектора Половцова", tags: ["музеи", "необычный"], cluster: "Адмиралтейская", minutes: 60, priority: 3, note: "", info: "Особняк банкира и промышленника Александра Половцова на Большой Морской улице. Известен как Дом архитектора — здесь находится Союз архитекторов Санкт-Петербурга." },
+    { name: "Семимостье", tags: ["прогулочный", "необычный"], cluster: "Адмиралтейская", minutes: 15, priority: 2, note: "", info: "Место на Крюковом канале, откуда видно сразу семь петербургских мостов. Считается, что загаданное здесь желание обязательно сбудется." },
+    { name: "Новая Голландия", tags: ["тусовочный", "прогулочный", "необычный"], cluster: "Адмиралтейская", minutes: 90, priority: 2, note: "Кластер", info: "Остров в центре Санкт-Петербурга, бывшая территория военных складов и тюрьмы. С 2011 года превращён в современное общественное пространство с парком, кафе и лекториями." },
+    { name: "Музей военно-морского флота", tags: ["музеи", "с_семьей"], cluster: "Адмиралтейская", minutes: 90, priority: 3, note: "", info: "Один из старейших музеев России, основанный в 1709 году Петром I. Экспозиция рассказывает об истории российского флота от петровской эпохи до наших дней." },
+
+    { name: "Музей-квартира Достоевского", tags: ["музеи", "необычный"], cluster: "Околовокзальное", minutes: 60, priority: 3, note: "", info: "Мемориальная квартира, где Фёдор Достоевский написал «Братьев Карамазовых». Музей расположен в доме на Кузнечном переулке, где писатель жил в 1878–1881 годах." },
+    { name: "5 углов", tags: ["тусовочный", "прогулочный"], cluster: "Околовокзальное", minutes: 30, priority: 3, note: "", info: "Перекрёсток пяти улиц в центре Санкт-Петербурга — необычная градостроительная точка." },
+    { name: "Прогулки по крышам", tags: ["тусовочный", "необычный"], cluster: "Околовокзальное", minutes: 120, priority: 2, note: "По записи", info: "Организованные экскурсии по крышам Петербурга с лучшими видами на исторический центр." }
+  ];
+
+  var questions = [
+    {
+      title: "Как часто вы бываете в Питере?",
+      subtitle: "От этого зависит, сколько классики включать в маршрут.",
+      key: "experience",
+      options: [
+        { label: "Первый раз", hint: "Стоит походить по музеям — стандартный маршрут", emoji: "🆕", tags: ["классика", "музеи"], mode: "classic" },
+        { label: "Бывал пару раз", hint: "Совмещённо: и музеи, и необычные места", emoji: "🔄", tags: ["музеи", "необычный", "прогулочный"], mode: "mixed" },
+        { label: "Уже 100 раз бывал", hint: "Больше нестандартных мест", emoji: "🏆", tags: ["необычный", "тусовочный", "прогулочный"], mode: "unusual" }
+      ]
+    },
+    {
+      title: "С кем вы едете?",
+      subtitle: "От этого зависит темп и атмосфера маршрута.",
+      key: "company",
+      options: [
+        { label: "Один / с друзьями", hint: "Тусовки, дворы, крыши", emoji: "👥", tags: ["тусовочный", "необычный"] },
+        { label: "С семьёй и детьми", hint: "Спокойно, музеи, парки", emoji: "👨‍👩‍👧", tags: ["с_семьей", "музеи", "прогулочный"] },
+        { label: "С второй половинкой", hint: "Прогулки, виды, атмосфера", emoji: "💑", tags: ["прогулочный", "необычный"] },
+        { label: "С родителями", hint: "Классика, история, комфорт", emoji: "👴", tags: ["музеи", "классика"] }
+      ]
+    },
+    {
+      title: "Сколько у вас времени?",
+      subtitle: "Мы подберём маршрут под ваш срок.",
+      key: "duration",
+      options: [
+        { label: "Полдня", hint: "4–5 часов", emoji: "⏱", days: 1, hoursPerDay: 5 },
+        { label: "1 день", hint: "Только самое главное", emoji: "📅", days: 1, hoursPerDay: 8 },
+        { label: "2–3 дня", hint: "Топ + атмосферные районы", emoji: "🗓", days: 3, hoursPerDay: 8 },
+        { label: "Неделя и больше", hint: "Всё, включая загород", emoji: "🌍", days: 7, hoursPerDay: 8 }
+      ]
+    },
+    {
+      title: "Что вам ближе?",
+      subtitle: "Это задаст тон всему маршруту.",
+      key: "style",
+      options: [
+        { label: "Классика и история", hint: "Эрмитаж, соборы, крепости", emoji: "🏛", tags: ["музеи", "классика"] },
+        { label: "Андеграунд и неформат", hint: "Дворы, крыши, арт-кафе", emoji: "🎭", tags: ["необычный", "тусовочный"] },
+        { label: "Природа и прогулки", hint: "Парки, набережные, сады", emoji: "🌳", tags: ["прогулочный"] },
+        { label: "Смешать всё", hint: "Комбинированный маршрут", emoji: "🎲", tags: ["музеи", "прогулочный", "необычный"] }
+      ]
+    },
+    {
+      title: "Как вы относитесь к толпам туристов?",
+      subtitle: "Честно — это влияет на выбор точек.",
+      key: "crowds",
+      options: [
+        { label: "Люблю эпицентр", hint: "Невский, Дворцовая, Исаакий", emoji: "🔥", tags: ["классика"] },
+        { label: "Хочу тихие места", hint: "Дворы, Семимостье, скверы", emoji: "🤫", tags: ["необычный", "прогулочный"] },
+        { label: "Готов на выезд за город", hint: "Петергоф, Кронштадт, Орешек", emoji: "🚂", tags: ["загород"] }
+      ]
+    },
+    {
+      title: "Что важнее в поездке?",
+      subtitle: "Выберите главное — остальное добавим бонусом.",
+      key: "priority",
+      options: [
+        { label: "Фотографии и виды", hint: "Крыши, колоннады, набережные", emoji: "📸", tags: ["необычный", "прогулочный"] },
+        { label: "Впечатления и эмоции", hint: "Кунсткамера, крыши, Новая Голландия", emoji: "🎢", tags: ["необычный", "тусовочный"] },
+        { label: "Знания и культура", hint: "Музеи, соборы, история", emoji: "📚", tags: ["музеи", "классика"] },
+        { label: "Скрытые места", hint: "Дворы, мозаики, малоизвестные точки", emoji: "🗺", tags: ["необычный", "прогулочный"] }
+      ]
+    },
+    {
+      title: "Чем займётесь вечером?",
+      subtitle: "Последний вопрос — и покажем маршрут.",
+      key: "evening",
+      options: [
+        { label: "Гуляю по набережной", hint: "Романтика и виды", emoji: "🌃", tags: ["прогулочный", "ночь"] },
+        { label: "Смотрю развод мостов", hint: "Ночное шоу на Неве", emoji: "🌉", tags: ["ночь", "необычный"] },
+        { label: "Иду в театр", hint: "Мариинский, Аврора", emoji: "🎭", tags: ["музеи", "классика"] },
+        { label: "Отдыхаю в отеле", hint: "Короткий день", emoji: "🛏", tags: [] }
+      ]
+    }
+  ];
+
+  var currentQuestion = 0;
+  var answers = {};
+  var quizStarted = false;
+
+  var ctaBlock = document.getElementById('ctaBlock');
+  var quizEl = document.getElementById('quiz');
+  var resultEl = document.getElementById('result');
+  var progressBar = document.getElementById('progressBar');
+  var progressText = document.getElementById('progressText');
+  var startBtn = document.getElementById('startBtn');
+  var backBtn = document.getElementById('backBtn');
+  var nextBtn = document.getElementById('nextBtn');
+
+  startBtn.addEventListener('click', function () {
+    if (quizStarted) return;
+    quizStarted = true;
+    ctaBlock.style.display = 'none';
+    quizEl.classList.add('active');
+    currentQuestion = 0;
+    answers = {};
+    renderQuestion();
+    setTimeout(function () {
+      quizEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  });
+
+  function renderQuestion() {
+    var q = questions[currentQuestion];
+    document.getElementById('questionTitle').textContent = q.title;
+    document.getElementById('questionSubtitle').textContent = q.subtitle;
+    progressBar.style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
+    progressText.textContent = 'Вопрос ' + (currentQuestion + 1) + ' из ' + questions.length;
+
+    var optionsEl = document.getElementById('options');
+    optionsEl.innerHTML = '';
+    q.options.forEach(function (opt, idx) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'option';
+      if (answers[q.key] === idx) btn.classList.add('selected');
+      btn.innerHTML =
+        '<span class="emoji">' + opt.emoji + '</span>' +
+        '<span>' +
+          '<span class="label">' + opt.label + '</span>' +
+          '<span class="hint">' + opt.hint + '</span>' +
+        '</span>';
+      btn.addEventListener('click', function () { selectOption(idx); });
+      optionsEl.appendChild(btn);
+    });
+
+    backBtn.style.visibility = currentQuestion === 0 ? 'hidden' : 'visible';
+    nextBtn.disabled = answers[q.key] === undefined;
+    nextBtn.textContent = currentQuestion === questions.length - 1 ? 'Показать маршрут' : 'Далее';
+  }
+
+  function selectOption(idx) {
+    answers[questions[currentQuestion].key] = idx;
+    var opts = document.querySelectorAll('.option');
+    opts.forEach(function (el, i) {
+      el.classList.toggle('selected', i === idx);
+    });
+    nextBtn.disabled = false;
+  }
+
+  function nextQuestion() {
+    if (currentQuestion < questions.length - 1) {
+      currentQuestion++;
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }
+
+  function prevQuestion() {
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      renderQuestion();
+    }
+  }
+
+  backBtn.addEventListener('click', prevQuestion);
+  nextBtn.addEventListener('click', nextQuestion);
+
+  function collectUserTags() {
+    var tags = new Set();
+    questions.forEach(function (q) {
+      var idx = answers[q.key];
+      if (idx === undefined) return;
+      var opt = q.options[idx];
+      if (opt.tags) {
+        opt.tags.forEach(function (t) { tags.add(t); });
+      }
+    });
+    return tags;
+  }
+
+  function getUserMode() {
+    var idx = answers.experience;
+    if (idx === undefined) return "mixed";
+    return questions[0].options[idx].mode || "mixed";
+  }
+
+  function filterPlaces(userTags, mode) {
+    return places.filter(function (place) {
+      if (place.tags.indexOf("ночь") !== -1) {
+        if (!userTags.has("ночь")) return false;
+      }
+      if (place.fullDay && !userTags.has("загород")) {
+        return false;
+      }
+      if (mode === "classic") {
+        if (place.tags.indexOf("необычный") !== -1) return false;
+        if (place.tags.indexOf("тусовочный") !== -1) return false;
+      }
+      return place.tags.some(function (t) { return userTags.has(t); });
+    }).map(function (place) {
+      var copy = {};
+      for (var k in place) copy[k] = place[k];
+      if (mode === "unusual" && place.tags.indexOf("необычный") !== -1) {
+        copy.priority = Math.max(0, copy.priority - 10);
+      }
+      if (place.fullDay) {
+        copy.priority = 0;
+      }
+      if (place.cluster === "Ночь") {
+        copy.priority = 999;
+      }
+      return copy;
+    });
+  }
+
+  /* =========================================================
+     ГРУППИРОВКА ПО ДНЯМ
+     - Потолок 8 часов в день, включая переходы (+15 мин между точками)
+     - fullDay:true точки — каждая занимает целый день
+     - Распределение: каждая точка идёт в самый свободный день
+     ========================================================= */
+  function groupByDays(filtered, daysLimit, hoursPerDay) {
+    var maxMinutes = Math.min(hoursPerDay * 60, 8 * 60);
+    var days = [];
+    var used = new Set();
+
+    var fullDayPlaces = [];
+    var nightPlaces = [];
+    var regular = [];
+
+    filtered.forEach(function (p) {
+      if (p.cluster === "Ночь") nightPlaces.push(p);
+      else if (p.fullDay) fullDayPlaces.push(p);
+      else regular.push(p);
+    });
+
+    regular.sort(function (a, b) { return a.priority - b.priority; });
+    fullDayPlaces.sort(function (a, b) { return a.priority - b.priority; });
+
+    // Резервируем 75 мин под ночной развод мостов, если он есть
+    var nightReserve = nightPlaces.length > 0 ? 75 : 0;
+    var bucketMax = maxMinutes - nightReserve;
+
+    var dayIndex = 0;
+
+    // 1. Полнодневные поездки — по дню на каждую
+    for (var i = 0; i < fullDayPlaces.length; i++) {
+      if (dayIndex >= daysLimit) break;
+      var c = fullDayPlaces[i];
+      if (used.has(c.name)) continue;
+      days.push({
+        cluster: c.cluster,
+        points: [c],
+        totalMin: Math.min(c.minutes, maxMinutes),
+        isCountry: true
+      });
+      used.add(c.name);
+      dayIndex++;
+    }
+
+    // 2. Остальные — в самый свободный день, где влезает с переходом
+    var remainingDays = daysLimit - dayIndex;
+    if (remainingDays > 0 && regular.length > 0) {
+      var buckets = [];
+      for (var d = 0; d < remainingDays; d++) {
+        buckets.push({ points: [], totalMin: 0, clusterCounts: {} });
+      }
+
+      regular.forEach(function (p) {
+        if (used.has(p.name)) return;
+
+        var candidates = buckets.filter(function (b) {
+          var extra = p.minutes + (b.points.length > 0 ? 15 : 0);
+          return b.totalMin + extra <= bucketMax;
+        });
+        if (candidates.length === 0) return;
+
+        var target = candidates.reduce(function (min, b) {
+          return b.totalMin < min.totalMin ? b : min;
+        }, candidates[0]);
+
+        var isFirst = target.points.length === 0;
+        target.points.push(p);
+        target.totalMin += p.minutes + (isFirst ? 0 : 15);
+        target.clusterCounts[p.cluster] = (target.clusterCounts[p.cluster] || 0) + 1;
+        used.add(p.name);
+      });
+
+      buckets.forEach(function (b) {
+        if (b.points.length === 0) return;
+        b.points.sort(function (a, b) { return a.priority - b.priority; });
+
+        var topCluster = null;
+        var topCount = 0;
+        for (var cl in b.clusterCounts) {
+          if (b.clusterCounts[cl] > topCount) {
+            topCount = b.clusterCounts[cl];
+            topCluster = cl;
+          }
+        }
+
+        days.push({
+          cluster: topCluster || "Разное",
+          points: b.points,
+          totalMin: b.totalMin,
+          isCountry: false
+        });
+      });
+    }
+
+    // 3. Ночные точки — на последний день
+    if (nightPlaces.length > 0 && days.length > 0) {
+      var lastDay = days[days.length - 1];
+      nightPlaces.forEach(function (np) {
+        if (used.has(np.name)) return;
+        var extra = np.minutes + (lastDay.points.length > 0 ? 15 : 0);
+        lastDay.points.push(np);
+        lastDay.totalMin += extra;
+        used.add(np.name);
+      });
+    }
+
+    return { days: days };
+  }
+
+  function formatTime(minutes) {
+    var h = Math.floor(minutes / 60);
+    var m = minutes % 60;
+    if (h === 0) return m + " мин";
+    if (m === 0) return h + " ч";
+    return h + " ч " + m + " мин";
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function showResult() {
+    var userTags = collectUserTags();
+    var mode = getUserMode();
+    var filtered = filterPlaces(userTags, mode);
+
+    var durationOpt = questions[2].options[answers.duration];
+    var daysLimit = durationOpt.days;
+    var hoursPerDay = durationOpt.hoursPerDay;
+
+    var grouped = groupByDays(filtered, daysLimit, hoursPerDay);
+
+    quizEl.classList.remove('active');
+    ctaBlock.style.display = 'none';
+
+    var totalPoints = grouped.days.reduce(function (s, d) { return s + d.points.length; }, 0);
+    var daysWord = grouped.days.length === 1 ? ' день' : ' дня';
+
+    if (grouped.days.length === 0) {
+      resultEl.innerHTML = '<div class="result-card"><h2>Не удалось собрать маршрут</h2><p class="desc">Попробуйте выбрать другие ответы — например, добавить загород или изменить компанию.</p><div class="result-actions"><button class="btn secondary" type="button" id="restartBtn">Пройти заново</button></div></div>';
+      resultEl.classList.add('active');
+      document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+      return;
+    }
+
+    var html = '' +
+      '<div class="result-card">' +
+        '<h2>Ваш персональный маршрут</h2>' +
+        '<p class="desc">Мы отобрали ' + totalPoints + ' точек из ' + places.length + ' возможных. Наведите курсор на точку, чтобы узнать подробнее. Каждый день рассчитан на 4–8 часов, загородные поездки занимают целый день.</p>' +
+        '<div class="result-tags">' +
+          '<span class="tag">' + grouped.days.length + daysWord + '</span>' +
+          '<span class="tag">' + totalPoints + ' точек</span>' +
+        '</div>';
+
+    grouped.days.forEach(function (day, idx) {
+      var totalWithTransitions = day.totalMin;
+      var dayTitle = day.isCountry
+        ? ('День ' + (idx + 1) + ' — ' + day.points[0].name)
+        : ('День ' + (idx + 1) + ' — ' + day.cluster);
+      html += '<div class="day">' +
+        '<h4>' + escapeHtml(dayTitle) + '</h4>' +
+        '<div class="day-meta">' +
+          '<span>⏱ ~' + formatTime(totalWithTransitions) + '</span>' +
+          '<span>📍 ' + day.points.length + ' точек</span>' +
+        '</div>' +
+        '<ol>';
+
+      day.points.forEach(function (p) {
+        var noteHtml = p.note ? '<small>' + escapeHtml(p.note) + ' · ' + formatTime(p.minutes) + '</small>' : '<small>' + formatTime(p.minutes) + '</small>';
+        var infoAttr = p.info ? ' data-info="' + escapeHtml(p.info) + '"' : '';
+        html += '<li class="place"' + infoAttr + '>' +
+          '<span class="place-name">' + escapeHtml(p.name) + '</span>' +
+          noteHtml +
+        '</li>';
+      });
+
+      html += '</ol></div>';
+    });
+
+    html += '' +
+      '<div class="map-block">' +
+        '<iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A532bd4462dcf213a8490000072b2dedd02c34a7aeeb72cbf78a5232fe5ae64e6&amp;source=constructor" width="100%" height="400" frameborder="0"></iframe>' +
+      '</div>';
+
+    html += '' +
+        '<div class="result-actions">' +
+          '<button class="btn secondary" type="button" id="restartBtn">Пройти заново</button>' +
+          '<button class="btn" type="button" onclick="window.print()">Скачать PDF</button>' +
+        '</div>' +
+      '</div>';
+
+    resultEl.innerHTML = html;
+    resultEl.classList.add('active');
+
+    document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+
+    initTooltips();
+
+    setTimeout(function () {
+      resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
+  function initTooltips() {
+    var old = document.getElementById('placeTooltip');
+    if (old) old.parentNode.removeChild(old);
+
+    var tooltip = document.createElement('div');
+    tooltip.className = 'place-tooltip';
+    tooltip.id = 'placeTooltip';
+    document.body.appendChild(tooltip);
+
+    var places_els = document.querySelectorAll('.day ol li.place');
+
+    function show(el, x, y) {
+      var text = el.getAttribute('data-info');
+      if (!text) return;
+      tooltip.textContent = text;
+      tooltip.classList.add('visible');
+      position(x, y);
+    }
+
+    function position(x, y) {
+      var ttRect = tooltip.getBoundingClientRect();
+      var px = x + 15;
+      var py = y - ttRect.height - 15;
+      if (px + ttRect.width > window.innerWidth - 10) px = window.innerWidth - ttRect.width - 10;
+      if (px < 10) px = 10;
+      if (py < 10) py = y + 20;
+      if (py + ttRect.height > window.innerHeight - 10) py = window.innerHeight - ttRect.height - 10;
+      tooltip.style.left = px + 'px';
+      tooltip.style.top = py + 'px';
+    }
+
+    function hide() {
+      tooltip.classList.remove('visible');
+    }
+
+    places_els.forEach(function (el) {
+      if (!el.getAttribute('data-info')) return;
+      el.addEventListener('mouseenter', function (e) { show(el, e.clientX, e.clientY); });
+      el.addEventListener('mousemove', function (e) { position(e.clientX, e.clientY); });
+      el.addEventListener('mouseleave', hide);
+      el.addEventListener('touchstart', function (e) {
+        var t = e.touches[0];
+        show(el, t.clientX, t.clientY);
+      }, { passive: true });
+      el.addEventListener('touchend', function () {
+        setTimeout(hide, 2500);
+      }, { passive: true });
+    });
+
+    document.addEventListener('scroll', hide, { passive: true });
+  }
+
+  function restartQuiz() {
+    quizStarted = false;
+    resultEl.classList.remove('active');
+    resultEl.innerHTML = '';
+    quizEl.classList.remove('active');
+    ctaBlock.style.display = 'block';
+    currentQuestion = 0;
+    answers = {};
+    document.getElementById('quiz-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+});
+</script>
+</body>
+</html>
